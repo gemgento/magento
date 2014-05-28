@@ -1,0 +1,34 @@
+<config>
+    <api>
+        <resources>
+            <productSearch translate="title" module="productSearch">
+                <title>Gemgento Product Search</title>
+                <model>productSearch/api</model>
+                <acl>gemgento/productSearch</acl>
+                <methods>
+                    <results translate="title" module="productSearch">
+                        <title>Perform a search and return resulting product Ids</title>
+                        <acl>gemgento/productSearch</acl>
+                    </results>
+                </methods>
+            </productSearch>
+        </resources>
+        <v2>
+            <resources_function_prefix>
+                <productSearch>productSearch</productSearch>
+            </resources_function_prefix>
+        </v2>
+        <acl> Access Control Results  to our resources, this tree structure is displayed in "Resource Roles" panel when you open role to edit 
+            <resources>
+                <gemgento translate="title" module="productSearch">
+                    <title>Gemgento</title>
+                    <productSearch translate="title" module="productSearch">
+                        <title>Product Search</title>
+                    </productSearch>
+                </gemgento>
+                <all>
+                </all>
+            </resources>
+        </acl>
+    </api>
+</config>

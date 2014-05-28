@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Gemgento_Push>
+            <version>0.0.1</version>
+        </Gemgento_Push>
+    </modules>
+    <global>
+        <models>
+            <gemgento_push>
+                <class>Gemgento_Push_Model</class>
+            </gemgento_push>
+        </models>
+        <events>
+            
+            <!-- ADDRESSES -->
+            <customer_address_save_after>
+               <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>address_save</method>
+                    </push>
+                </observers> 
+            </customer_address_save_after>
+            
+            <customer_address_delete_before>
+               <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>address_delete</method>
+                    </push>
+                </observers> 
+            </customer_address_delete_before>
+            
+            <!-- PRODUCTS -->
+            <catalog_product_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>product_save</method>
+                    </push>
+                </observers>
+            </catalog_product_save_after>
+            
+            <catalog_product_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>product_delete</method>
+                    </push>
+                </observers>
+            </catalog_product_delete_before>
+            
+            <!-- STOCK -->
+            <cataloginventory_stock_item_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>stock_save</method>
+                    </push>
+                </observers>
+            </cataloginventory_stock_item_save_after>
+            
+            <!-- CATEGORY -->
+            <catalog_category_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>category_save</method>
+                    </push>
+                </observers>
+            </catalog_category_save_after>
+            
+            <catalog_category_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>category_delete</method>
+                    </push>
+                </observers>
+            </catalog_category_delete_before>
+            
+            <catalog_category_tree_move_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>category_move</method>
+                    </push>
+                </observers>
+            </catalog_category_tree_move_after>
+            
+            <!-- ATTRIBUTE SET -->
+            <eav_entity_attribute_set_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_set_save</method>
+                    </push>
+                </observers>
+            </eav_entity_attribute_set_save_after>
+            
+            <eav_entity_attribute_set_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_set_delete</method>
+                    </push>
+                </observers>
+            </eav_entity_attribute_set_delete_before>
+            
+            <!-- ATTRIBUTE -->
+            <catalog_entity_attribute_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_save</method>
+                    </push>
+                </observers>
+            </catalog_entity_attribute_save_after>
+            
+            <eav_entity_attribute_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_save</method>
+                    </push>
+                </observers>
+            </eav_entity_attribute_save_after>
+            
+            <catalog_entity_attribute_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_delete</method>
+                    </push>
+                </observers>
+            </catalog_entity_attribute_delete_before>
+            
+            <eav_entity_attribute_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>attribute_delete</method>
+                    </push>
+                </observers>
+            </eav_entity_attribute_delete_before>
+            
+            <!-- CUSTOMER -->
+            <customer_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>customer_save</method>
+                    </push>
+                </observers>
+            </customer_save_after>
+            
+            <customer_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>customer_delete</method>
+                    </push>
+                </observers>
+            </customer_delete_before>
+            
+            <!-- ORDER -->
+            <sales_order_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>order_save</method>
+                    </push>
+                </observers>
+            </sales_order_save_after>
+            
+            <!-- STORE -->
+            <store_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>store_save</method>
+                    </push>
+                </observers>
+            </store_save_after>
+        </events>
+    </global>
+    
+    <default>
+        <gemgento_push>
+            <config>
+                <gemgento_url>http://localhost:3000/</gemgento_url>
+                <gemgento_user></gemgento_user>
+                <gemgento_password></gemgento_password>
+            </config>
+        </gemgento_push>
+    </default>
+    
+</config>
+
+

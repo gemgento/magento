@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<config>
+    <api>
+        <resources>
+            <cart translate="title" module="checkout">
+                <model>checkout/cart_api</model>
+                <title>Shopping Cart</title>
+                <acl>cart</acl>
+                <methods>
+                    <create translate="title" module="checkout">
+                        <title>Create shopping cart</title>
+                        <method>create</method>
+                        <acl>cart/create</acl>
+                    </create>
+                    <order translate="title" module="checkout">
+                        <title>Create an order from shopping cart</title>
+                        <method>createOrder</method>
+                        <acl>cart/order</acl>
+                    </order>
+                </methods>
+            </cart>
+        </resources>
+    </api>
+</config>
