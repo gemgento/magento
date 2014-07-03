@@ -1,5 +1,5 @@
 .DS_Store
-/public/includes/*
+/includes/src/*
 /public/var/cache/**/*
 /public/var/session/**/*
 /public/var/session/*
