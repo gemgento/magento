@@ -13,6 +13,11 @@
             </depends>
         </Gemgento_Catalog>
         
+        <Gemgento_CatalogRule>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Gemgento_CatalogRule>
+        
         <Gemgento_Customer>
             <active>true</active>
             <codePool>community</codePool>
@@ -58,6 +63,11 @@
             <codePool>community</codePool>
         </Gemgento_Push>
         
+        <Gemgento_Tag>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Gemgento_Tag>
+        
         <Bubble_Api>
             <active>true</active>
             <codePool>community</codePool>
@@ -67,5 +77,14 @@
             <active>true</active>
             <codePool>community</codePool>
         </Gemgento_Order>
+        
+        <Gemgento_ApiLogger>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Api />
+                <Mage_Api2 />
+            </depends>
+        </Gemgento_ApiLogger>
     </modules>
 </config>
