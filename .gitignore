@@ -1,13 +1,8 @@
 .DS_Store
 /includes/src/*
-/public/var/cache/**/*
-/public/var/session/**/*
-/public/var/session/*
-/public/var/log/*
-/public/var/locks/*
-/public/var/report/*
+/public/app/etc/local.xml
+/public/errors/local.xml
 /public/media/catalog/product/*
 /public/media/js/*
 /public/media/css/*.css
-/public/errors/local.xml
-/public/app/etc/local.xml
+/public/var
