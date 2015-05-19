@@ -8,12 +8,12 @@ class Gemgento_Push_Model_Observer {
     );
 
     public function __construct() {
-        
+
     }
 
     /**
      * Send customer address data to Gemgento.
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function address_save($observer) {
@@ -28,7 +28,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete customer address data in Gemgento.
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function address_delete($observer) {
@@ -38,69 +38,17 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send product data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function product_save($observer) {
 
-        if (!is_object(Mage::getSingleton('admin/session')->getUser())) {
+        if (!$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
         $product = $observer->getProduct();
-
-        // Basic product data
-        $data = array(
-            'product_id' => $product->getId(),
-            'gemgento_id' => $product->getGemgentoId(),
-            'sku' => $product->getSku(),
-            'set' => $product->getAttributeSetId(),
-            'type' => $product->getTypeId(),
-            'websites' => $product->getWebsiteIds(),
-            'stores' => $product->getStoreIds(),
-            'additional_attributes' => array(),
-            'simple_product_ids' => array(),
-            'configurable_product_ids' => Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($product->getId())
-        );
-
-        if ($product->getTypeId() == 'configurable') {
-            $conf = Mage::getModel('catalog/product_type_configurable')->setProduct($product);
-            $simple_collection = $conf->getUsedProductCollection()->addAttributeToSelect('*')->addFilterByRequiredOptions();
-            foreach ($simple_collection as $simple_product) {
-                $data['simple_product_ids'][] = $simple_product->getId();
-            }
-        }
-
-        // load attribute values for each store
-        foreach ($data['stores'] as $storeId) {
-            $product = Mage::getModel('catalog/product')->setStoreId($storeId)->load($data['product_id']);
-            $data['additional_attributes'][$storeId] = array();
-
-            foreach ($product->getTypeInstance(true)->getEditableAttributes($product) as $attribute) {
-                $data['additional_attributes'][$storeId][$attribute->getAttributeCode()] = $product->getData($attribute->getAttributeCode());
-            }
-
-            $data['additional_attributes'][$storeId]['category_ids'] = $product->getCategoryIds();
-
-            if (isset($data['additional_attributes'][$storeId]['media_gallery']) && isset($data['additional_attributes'][$storeId]['media_gallery']['images'])) {
-
-                # loop through each image
-                foreach ($data['additional_attributes'][$storeId]['media_gallery']['images'] as $index => $image) {
-                    $types = array();
-
-                    # load the type(s) for each image
-                    foreach ($product->getMediaAttributes() as $mediaAttribute) {
-                        if ($product->getData($mediaAttribute->getAttributeCode()) == $image['file']) {
-                            $types[] = $mediaAttribute->getAttributeCode();
-                        }
-                    }
-
-                    #set the image types in the result array
-                    $data['additional_attributes'][$storeId]['media_gallery']['images'][$index]['types'] = $types;
-                }
-            }
-        }
-
+        $data =  Mage::helper('gemgento_push/catalog_product')->export($product);
         $id = $data['gemgento_id'];
 
         if ($id == NULL || $id == '') {
@@ -112,7 +60,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete product in Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function product_delete($observer) {
@@ -134,7 +82,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send stock data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function stock_save($observer) {
@@ -151,14 +99,15 @@ class Gemgento_Push_Model_Observer {
 
         foreach ($stockCollection as $stockItem) {
             $tmpStock = $stockItem->getData();
+            $website_id = (array_key_exists('website_id', $tmpStock)) ? $tmpStock['website_id'] : 0;
 
-            if ($maxWebsite_id < $tmpStock['website_id']) {
-                $maxWebsite_id = $tmpStock['website_id'];
+            if ($maxWebsite_id < $website_id) {
+                $maxWebsite_id = $website_id;
             }
             if (in_array($product->getTypeId(), $this->_complexProductTypes)) {
                 $this->_filterComplexProductValues($tmpStock);
             }
-            $stock[$tmpStock['website_id']] = $tmpStock;
+            $stock[$website_id] = $tmpStock;
         }
 
         foreach ($stock as $key => $value) {
@@ -174,12 +123,12 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send category data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function category_save($observer) {
 
-        if (!is_object(Mage::getSingleton('admin/session')->getUser())) {
+        if (!$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -210,7 +159,7 @@ class Gemgento_Push_Model_Observer {
             foreach ($collection as $product) {
                 $data['products']["0{$storeId}"][] = array(
                     'product_id' => $product->getId(),
-                    'position' => $positions[$product->getId()]
+                    'position' => (array_key_exists($product->getId(), $positions)) ? $positions[$product->getId()] : 0
                 );
             }
         }
@@ -220,7 +169,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete category in Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function category_delete($observer) {
@@ -231,12 +180,12 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Change category position.
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function category_move($observer) {
 
-        if (!is_object(Mage::getSingleton('admin/session')->getUser())) {
+        if (!$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -262,14 +211,14 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send attribute set data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function attribute_set_save($observer) {
         $attribute_set = $observer->getEvent()->getObject();
         $attributes = Mage::getModel('catalog/product')->getResource()
-                ->loadAllAttributes()
-                ->getSortedAttributes($attribute_set->getId());
+            ->loadAllAttributes()
+            ->getSortedAttributes($attribute_set->getId());
 
         $data = array(
             'set_id' => $attribute_set->getId(),
@@ -286,7 +235,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete attribute set data in Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function attribute_set_delete($observer) {
@@ -297,7 +246,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send attribute data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function attribute_save($observer) {
@@ -406,7 +355,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete attribute in Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function attribute_delete($observer) {
@@ -417,12 +366,12 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send customer data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function customer_save($observer) {
 
-        if (!is_object(Mage::getSingleton('admin/session')->getUser())) {
+        if (!$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -438,7 +387,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete customer in Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function customer_delete($observer) {
@@ -448,16 +397,44 @@ class Gemgento_Push_Model_Observer {
     }
 
     /**
+     * Send customer group data to Gemgento
+     *
+     * @param \Varien_Event_Observer $observer
+     */
+    public function customer_group_save($observer) {
+        $customerGroup = $observer->getEvent()->getDataObject();
+
+        $data = array();
+        $data['id'] = $customerGroup->getId();
+        $data['code'] = $customerGroup->getCode();
+
+        self::push('PUT', 'user_groups', $data['id'], $data);
+    }
+
+    /**
+     * Delete customer group in Gemgento
+     *
+     * @param \Varien_Event_Observer $observer
+     */
+    public function customer_group_delete($observer) {
+        self::push('DELETE', 'user_groups', $observer->getEvent()->getDataObject()->getId(), array());
+    }
+
+
+    /**
      * Send order data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function order_save($observer) {
+
+        if (!$this->_isAdmin()) {
+            return; # if event was not triggered by admin, stop here
+        }
+
         $order = $observer->getEvent()->getOrder();
-        $data = array();
 
         $data = $this->_getAttributes($order, 'order');
-
         $data['order_id'] = $order->getId();
         $data['gemgento_id'] = $order->getGemgentoId();
         $data['store_id'] = $order->getStoreId();
@@ -468,14 +445,12 @@ class Gemgento_Push_Model_Observer {
         foreach ($order->getAllItems() as $item) {
             if ($item->getGiftMessageId() > 0) {
                 $item->setGiftMessage(
-                        Mage::getSingleton('giftmessage/message')->load($item->getGiftMessageId())->getMessage()
+                    Mage::getSingleton('giftmessage/message')->load($item->getGiftMessageId())->getMessage()
                 );
             }
 
             $data['items'][] = $this->_getAttributes($item, 'order_item');
         }
-
-//        $data['payment'] = $this->_getAttributes($order->getPayment(), 'order_payment');
 
         $data['status_history'] = array();
 
@@ -494,7 +469,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send CatalogRule data to Gemgento.
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function rule_save($observer) {
@@ -509,7 +484,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Delete a CatalogRule in Gemgento.
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function rule_delete($observer) {
@@ -531,7 +506,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send store data to Gemgento
-     * 
+     *
      * @param \Varien_Event_Observer $observer
      */
     public function store_save($observer) {
@@ -551,37 +526,48 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Send request to Gemgento
-     * 
+     *
      * @param string $action HTTP verb
      * @param string $path the Gemgento URL relative path
      * @param integer $id ID of the model
-     * @param array $data paramters to send
+     * @param array $data parameters to send
      */
-    private function push($action, $path, $id, $data) {
+    public function push($action, $path, $id, $data) {
         $data_string = json_encode(Array('data' => $data));
-        $parts = parse_url($this->gemgento_url() . $path . '/' . $id);
+        $url = $this->gemgento_url() . $path . (!is_numeric($id) && empty($id) ? '' : "/{$id}");
+        $parts = parse_url($url);
 
-        $fp = fsockopen($parts['host'], isset($parts['port']) ? $parts['port'] : 80, $errno, $errstr, 30);
-
-        $out = "$action " . $parts['path'] . " HTTP/1.1\r\n";
-        $out.= "Host: " . $parts['host'] . "\r\n";
-
-        if ($this->gemgento_user() !== NULL && $this->gemgento_password() !== NULL) {
-            $out.= "Authorization: Basic " . base64_encode($this->gemgento_user() . ":" . $this->gemgento_password()) . "\r\n";
+        switch ($parts['scheme']) {
+            case 'https':
+                $scheme = 'ssl://';
+                $port = (empty($parts['port']) ? 443 : $parts['port']);
+                break;
+            case 'http':
+            default:
+                $scheme = '';
+                $port = (empty($parts['port']) ? 80 : $parts['port']);
         }
 
-        $out.= "Content-Type: application/json\r\n";
-        $out.= "Content-Length: " . strlen($data_string) . "\r\n";
-        $out.= "Connection: Close\r\n\r\n";
-        $out.= $data_string;
+        if($fp = fsockopen($scheme . $parts['host'], $port, $errno, $errstr, 30)) {
+            $out = "$action " . $parts['path'] . " HTTP/1.1\r\n";
+            $out .= "Host: " . $parts['host'] . "\r\n";
 
-        fwrite($fp, $out);
-        fclose($fp);
+            if ($this->gemgento_user() !== NULL && $this->gemgento_password() !== NULL) {
+                $out .= "Authorization: Basic " . base64_encode($this->gemgento_user() . ":" . $this->gemgento_password()) . "\r\n";
+            }
+
+            $out .= "Content-Type: application/json\r\n";
+            $out .= "Content-Length: " . strlen($data_string) . "\r\n";
+            $out .= "Connection: Close\r\n\r\n";
+            $out .= $data_string;
+            fwrite($fp, $out);
+            fclose($fp);
+        }
     }
 
     /**
      * Get the Gemgento URL from configuration
-     * 
+     *
      * @return string
      */
     private function gemgento_url() {
@@ -591,12 +577,14 @@ class Gemgento_Push_Model_Observer {
             $url .= '/';
         }
 
+        $url .= 'magento/';
+
         return $url;
     }
 
     /**
      * Get the Gemgento HTTP auth user from configuration
-     * 
+     *
      * @return string
      */
     private function gemgento_user() {
@@ -611,7 +599,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Get the Gemgento HTTP auth password from configuration
-     * 
+     *
      * @return string
      */
     private function gemgento_password() {
@@ -707,7 +695,7 @@ class Gemgento_Push_Model_Observer {
 
     /**
      * Determine of action was caused by administrator.
-     * 
+     *
      * @return boolean
      */
     protected function _isAdmin() {

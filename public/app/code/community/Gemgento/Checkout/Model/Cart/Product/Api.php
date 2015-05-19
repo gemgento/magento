@@ -1,36 +1,5 @@
 <?php
-/**
- * Magento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * @category    Mage
- * @package     Mage_Checkout
- * @copyright   Copyright (c) 2014 Magento Inc. (http://www.magentocommerce.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
 
-/**
- * Shopping cart api for product
- *
- * @category    Mage
- * @package     Mage_Checkout
- * @author      Magento Core Team <core@magentocommerce.com>
- */
 class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_Api_Resource_Product
 {
     /**
@@ -79,6 +48,11 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
                 if (is_string($result)) {
                     Mage::throwException($result);
                 }
+
+                // set a custom price for the quote item
+                if(isset($productItem['options']['custom_price']) && $productItem['options']['custom_price'] != null) {
+                    $this->setCustomPrice($result, $productItem['options']['custom_price']);
+                }
             } catch (Mage_Core_Exception $e) {
                 $errors[] = $e->getMessage();
             }
@@ -89,13 +63,21 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
         }
 
         try {
-            $quote->collectTotals()->save();
+            $quote->setTotalsCollectedFlag(false)->collectTotals()->save();
         } catch (Exception $e) {
             $this->_fault("add_product_quote_save_fault", $e->getMessage());
         }
 
         return true;
     }
+
+    public function setCustomPrice($quoteItem, $customPrice){
+        $quoteItem->setCustomPrice($customPrice);
+        $quoteItem->setOriginalCustomPrice($customPrice);
+        $quoteItem->getProduct()->setIsSuperMode(true);
+        $quoteItem->save();
+    }
+
 
     /**
      * @param  $quoteId
@@ -137,6 +119,11 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
             if ($productItem['qty'] > 0) {
                 $quoteItem->setQty($productItem['qty']);
             }
+
+            // set a custom price for the quote item
+            if(isset($productItem['options']['custom_price']) && $productItem['options']['custom_price'] != null) {
+                $this->setCustomPrice($quoteItem, $productItem['options']['custom_price']);
+            }
         }
 
         if (!empty($errors)) {
@@ -144,7 +131,7 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
         }
 
         try {
-            $quote->collectTotals()->save();
+            $quote->setTotalsCollectedFlag(false)->collectTotals()->save();
         } catch (Exception $e) {
             $this->_fault("update_product_quote_save_fault", $e->getMessage());
         }
@@ -200,7 +187,7 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
         }
 
         try {
-            $quote->collectTotals()->save();
+            $quote->setTotalsCollectedFlag(false)->collectTotals()->save();
         } catch (Exception $e) {
             $this->_fault("remove_product_quote_save_fault", $e->getMessage());
         }
@@ -301,7 +288,7 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
                     $quote->removeItem($quoteItem->getId());
                     unset($productsData[$key]);
                 } else {
-                     $errors[] = Mage::helper('checkout')->__("One item of products is not belong any of quote item");
+                    $errors[] = Mage::helper('checkout')->__("One item of products is not belong any of quote item");
                 }
             } catch (Mage_Core_Exception $e) {
                 $errors[] = $e->getMessage();
@@ -321,7 +308,7 @@ class Gemgento_Checkout_Model_Cart_Product_Api extends Gemgento_Checkout_Model_A
                 ->collectTotals()
                 ->save();
         } catch (Exception $e) {
-             $this->_fault("product_move_quote_save_fault", $e->getMessage());
+            $this->_fault("product_move_quote_save_fault", $e->getMessage());
         }
 
         return true;

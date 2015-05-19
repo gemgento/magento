@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Gemgento_Push>
-            <version>0.0.1</version>
+            <version>0.0.3</version>
         </Gemgento_Push>
     </modules>
     <global>
@@ -10,7 +10,18 @@
             <gemgento_push>
                 <class>Gemgento_Push_Model</class>
             </gemgento_push>
+
+            <core>
+                <rewrite>
+                    <email_template>Gemgento_Push_Model_Email_Template</email_template>
+                </rewrite>
+            </core>
         </models>
+        <helpers>
+            <gemgento_push>
+                <class>Gemgento_Push_Helper</class>
+            </gemgento_push>
+        </helpers>
         <events>
             
             <!-- ADDRESSES -->
@@ -200,6 +211,26 @@
                     </push>
                 </observers>
             </customer_delete_before>
+
+            <customer_group_save_after>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>customer_group_save</method>
+                    </push>
+                </observers>
+            </customer_group_save_after>
+
+            <customer_group_delete_before>
+                <observers>
+                    <push>
+                        <type>singleton</type>
+                        <class>Gemgento_Push_Model_Observer</class>
+                        <method>customer_group_delete</method>
+                    </push>
+                </observers>
+            </customer_group_delete_before>
             
             <!-- ORDER -->
             <sales_order_save_after>
