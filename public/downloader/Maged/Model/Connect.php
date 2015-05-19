@@ -100,11 +100,8 @@ class Maged_Model_Connect extends Maged_Model
     {
         $match = array();
         if (!$this->checkExtensionKey($id, $match)) {
-            $errorMessage[] = sprintf('Invalid package identifier provided: %s', $id);
-            $packages = array(
-                'errors' => array('error'=> $errorMessage)
-            );
-            return $packages;
+            echo('Invalid package identifier provided: '.$id);
+            exit;
         }
 
         $channel = $match[1];

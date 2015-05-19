@@ -201,10 +201,6 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
             // instantiate controller class
             $controllerInstance = Mage::getControllerInstance($controllerClassName, $request, $front->getResponse());
 
-            if (!$this->_validateControllerInstance($controllerInstance)) {
-                continue;
-            }
-
             if (!$controllerInstance->hasAction($action)) {
                 continue;
             }
@@ -276,17 +272,6 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
     }
 
     /**
-     * Check if current controller instance is allowed in current router.
-     * 
-     * @param Mage_Core_Controller_Varien_Action $controllerInstance
-     * @return boolean
-     */
-    protected function _validateControllerInstance($controllerInstance)
-    {
-        return $controllerInstance instanceof Mage_Core_Controller_Front_Action;
-    }
-
-    /**
      * Generating and validating class file name,
      * class and if evrything ok do include if needed and return of class name
      *
@@ -311,6 +296,7 @@ class Mage_Core_Controller_Varien_Router_Standard extends Mage_Core_Controller_V
 
         return $controllerClassName;
     }
+
 
     /**
      * @deprecated
