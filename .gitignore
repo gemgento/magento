@@ -5,4 +5,4 @@
 /public/media/catalog/product/*
 /public/media/js/*
 /public/media/css/*.css
-/public/var
+/public/var/*
