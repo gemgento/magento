@@ -6,3 +6,6 @@
 /public/media/js/*
 /public/media/css/*.css
 /public/var/*
+
+# Ignore PhpStorm
+.idea/
