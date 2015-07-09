@@ -1,10 +1,12 @@
 .DS_Store
-/includes/src/*
-/public/app/etc/local.xml
-/public/errors/local.xml
-/public/media/catalog/product/*
+/public/includes/src/*
+/public/media/catalog/*
 /public/media/js/*
 /public/media/css/*.css
+/public/media/tmp/*
+/oublic/media/giftvoucher/template/barcode/*
+/public/errors/local.xml
+/public/app/etc/local.xml
 /public/var/*
 
 # Ignore PhpStorm
