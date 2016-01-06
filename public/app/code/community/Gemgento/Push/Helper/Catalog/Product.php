@@ -8,7 +8,6 @@ class Gemgento_Push_Helper_Catalog_Product extends Mage_Core_Helper_Abstract
         // Basic product data
         $data = array(
             'product_id' => $product->getId(),
-            'gemgento_id' => $product->getGemgentoId(),
             'sku' => $product->getSku(),
             'set' => $product->getAttributeSetId(),
             'type' => $product->getTypeId(),
@@ -16,8 +15,10 @@ class Gemgento_Push_Helper_Catalog_Product extends Mage_Core_Helper_Abstract
             'stores' => $product->getStoreIds(),
             'additional_attributes' => $this->additionalAttributes($product, $product->getStoreIds()),
             'simple_product_ids' => $this->simpleProductIds($product),
+            'configurable_attribute_ids' => $this->configurableAttributeIds($product),
             'configurable_product_ids' => Mage::getResourceSingleton('catalog/product_type_configurable')->getParentIdsByChild($product->getId()),
-            'bundle_options' => $this->bundleOptions($product)
+            'bundle_options' => $this->bundleOptions($product),
+            'tier_price' => $product->getData('tier_price')
         );
 
         return $data;
@@ -36,6 +37,18 @@ class Gemgento_Push_Helper_Catalog_Product extends Mage_Core_Helper_Abstract
         }
 
         return $ids;
+    }
+
+    public function configurableAttributeIds($product)
+    {
+        $configurable_Attribute_ids = array();
+        if ($product->getTypeId() == 'configurable') {
+            $configurable_attributes = $product->getTypeInstance(true)->getConfigurableAttributes($product);
+            foreach($configurable_attributes as $conf_attr) {
+                $configurable_Attribute_ids[] = $conf_attr->getAttributeId();
+            }
+        }
+        return $configurable_Attribute_ids;
     }
 
     public function additionalAttributes($product, $storeIds)
@@ -101,7 +114,7 @@ class Gemgento_Push_Helper_Catalog_Product extends Mage_Core_Helper_Abstract
     {
         $optionSelections = array();
 
-        $selections = $product->getTypeInstance(true)->getSelectionsCollection($optionId, $product);
+        $selections = $product->getTypeInstance(true)->getSelectionsCollection([$optionId], $product);
 
         foreach( $selections as $selection )
         {

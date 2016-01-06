@@ -3,7 +3,8 @@
 class Gemgento_Checkout_Model_Cart_Api extends Mage_Checkout_Model_Cart_Api {
 
     protected function _preparePaymentData($data) {
-        if (!(is_array($data) && is_null($data[0]))) {
+
+        if ( !is_array($data) || (array_key_exists(0, $data) && is_null($data[0])) ) {
             return array();
         }
 
@@ -65,6 +66,13 @@ class Gemgento_Checkout_Model_Cart_Api extends Mage_Checkout_Model_Cart_Api {
         }
 
         $quote = $this->_getQuote($quoteId, $store);
+
+        # Ensure that if a quote is related to an order, we do not attempted to convert it again.
+        $order = Mage::getModel('sales/order')->load($quote->getId(), 'quote_id');
+        if ($order->getId()) {
+            return $order->getIncrementId();
+        }
+
         if ($quote->getIsMultiShipping()) {
             $this->_fault('invalid_checkout_type');
         }

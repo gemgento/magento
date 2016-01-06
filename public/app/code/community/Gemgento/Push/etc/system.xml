@@ -5,54 +5,54 @@
             <label>Gemgento</label>
             <sort_order>150</sort_order>
         </gemgento>
-    </tabs>   
-    <sections>  
-        <gemgento_push>  
-            <label>Push Settings</label>  
-            <tab>gemgento</tab>  
-            <frontend_type>text</frontend_type>  
-            <show_in_default>1</show_in_default>  
-            <show_in_website>1</show_in_website>  
-            <show_in_store>1</show_in_store>  
-            <sort_order>10</sort_order>  
-            <groups>  
-                <settings translate="label">  
-                    <label>Gemgento URL</label>  
-                    <frontend_type>text</frontend_type>  
-                    <sort_order>10</sort_order>  
-                    <show_in_default>1</show_in_default>  
-                    <show_in_website>1</show_in_website>  
+    </tabs>
+    <sections>
+        <gemgento_push>
+            <label>Push Settings</label>
+            <tab>gemgento</tab>
+            <frontend_type>text</frontend_type>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <sort_order>10</sort_order>
+            <groups>
+                <settings translate="label">
+                    <label>Gemgento URL</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
-                    <expanded>1</expanded>    
-                    <fields>  
-                        <gemgento_url translate="label">  
-                            <label>Gemgento Url</label>  
-                            <frontend_type>text</frontend_type>  
-                            <sort_order>1</sort_order>  
-                            <show_in_default>1</show_in_default>  
-                            <show_in_website>1</show_in_website>  
-                            <show_in_store>1</show_in_store>  
+                    <expanded>1</expanded>
+                    <fields>
+                        <gemgento_url translate="label">
+                            <label>Gemgento Url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </gemgento_url>
-                        <gemgento_user translate="label">  
-                            <label>Gemgento HTTP Auth User</label>  
-                            <frontend_type>text</frontend_type>  
-                            <sort_order>2</sort_order>  
-                            <show_in_default>1</show_in_default>  
-                            <show_in_website>1</show_in_website>  
-                            <show_in_store>1</show_in_store>  
+                        <gemgento_user translate="label">
+                            <label>Gemgento HTTP Auth User</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                         </gemgento_user>
-                        <gemgento_password translate="label">  
-                            <label>Gemgento HTTP Auth Password</label>  
-                            <frontend_type>password</frontend_type>  
-                            <sort_order>3</sort_order>  
-                            <show_in_default>1</show_in_default>  
-                            <show_in_website>1</show_in_website>  
-                            <show_in_store>1</show_in_store>  
-                        </gemgento_password>    
-                    </fields>  
+                        <gemgento_password translate="label">
+                            <label>Gemgento HTTP Auth Password</label>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </gemgento_password>
+                    </fields>
                 </settings>
-                <emails translate="label">
-                    <label>Transactional Emails</label>
+                <admin_session_restricted_events translate="label">
+                    <label>Admin Session Restricted Events</label>
                     <frontend_type>text</frontend_type>
                     <sort_order>20</sort_order>
                     <show_in_default>1</show_in_default>
@@ -60,18 +60,72 @@
                     <show_in_store>1</show_in_store>
                     <expanded>1</expanded>
                     <fields>
-                        <enabled translate="label">
-                            <label>Send emails through Gemgento</label>
+                        <address_save translate="label">
+                            <label>Address Save</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </enabled>
+                        </address_save>
+                        <attribute_save translate="label">
+                            <label>Attribute Save</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </attribute_save>
+                        <category_move translate="label">
+                            <label>Category Move</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </category_move>
+                        <category_save translate="label">
+                            <label>Category Save</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </category_save>
+                        <customer_save translate="label">
+                            <label>Customer Save</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </customer_save>
+                        <order_save translate="label">
+                            <label>Order Save</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </order_save>
+                        <product_save translate="label">
+                            <label>Product Save</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </product_save>
                     </fields>
-                </emails>
-            </groups>  
-        </gemgento_push>  
-    </sections>  
+                </admin_session_restricted_events>
+            </groups>
+        </gemgento_push>
+    </sections>
 </config>  

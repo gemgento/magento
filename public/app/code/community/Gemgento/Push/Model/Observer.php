@@ -18,7 +18,7 @@ class Gemgento_Push_Model_Observer {
      */
     public function address_save($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('address_save') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -43,19 +43,14 @@ class Gemgento_Push_Model_Observer {
      */
     public function product_save($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('product_save') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
         $product = $observer->getProduct();
         $data =  Mage::helper('gemgento_push/catalog_product')->export($product);
-        $id = $data['gemgento_id'];
 
-        if ($id == NULL || $id == '') {
-            $id = 0;
-        }
-
-        self::push('PUT', 'products', $id, $data);
+        self::push('PUT', 'products', $product->getId(), $data);
     }
 
     /**
@@ -67,17 +62,10 @@ class Gemgento_Push_Model_Observer {
         $product = $observer->getProduct();
 
         $data = array(
-            'product_id' => $product->getId(),
-            'gemgento_id' => $product->getGemgentoId()
+            'product_id' => $product->getId()
         );
 
-        $id = $data['gemgento_id'];
-
-        if ($id == NULL || $id == '') {
-            $id = 0;
-        }
-
-        self::push('DELETE', 'products', $id, $data);
+        self::push('DELETE', 'products', $product->getId(), $data);
     }
 
     /**
@@ -88,35 +76,7 @@ class Gemgento_Push_Model_Observer {
     public function stock_save($observer) {
         $product_id = $observer->getEvent()->getItem()->getProductId();
         $product = Mage::getModel('catalog/product')->load($product_id);
-        $data = array(
-            'product_id' => $product_id,
-            'inventories' => array()
-        );
-
-        $stock = array(); // stock data for all websites
-        $stockCollection = Mage::getResourceModel('cataloginventory/stock_item_collection')->addProductsFilter(array($product))->load();
-        $maxWebsite_id = 0;
-
-        foreach ($stockCollection as $stockItem) {
-            $tmpStock = $stockItem->getData();
-            $website_id = (array_key_exists('website_id', $tmpStock)) ? $tmpStock['website_id'] : 0;
-
-            if ($maxWebsite_id < $website_id) {
-                $maxWebsite_id = $website_id;
-            }
-            if (in_array($product->getTypeId(), $this->_complexProductTypes)) {
-                $this->_filterComplexProductValues($tmpStock);
-            }
-            $stock[$website_id] = $tmpStock;
-        }
-
-        foreach ($stock as $key => $value) {
-            if (isset($values['website_id']) && ($value['website_id'] == $maxWebsite_id || empty($value['website_id']))) {
-                unset($stock[$key]);
-            }
-        }
-
-        $data['inventories'] = $stock;
+        $data = $product->getStockItem()->toArray();
 
         self::push('PUT', 'inventory', $data['product_id'], $data);
     }
@@ -128,7 +88,7 @@ class Gemgento_Push_Model_Observer {
      */
     public function category_save($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('category_save') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -185,7 +145,7 @@ class Gemgento_Push_Model_Observer {
      */
     public function category_move($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('category_move') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -250,105 +210,18 @@ class Gemgento_Push_Model_Observer {
      * @param \Varien_Event_Observer $observer
      */
     public function attribute_save($observer) {
-        $model = $observer->getEvent()->getAttribute();
 
-        if ($model->getAttributeCode() === NULL) {
+        if ($this->_isRestricted('attribute_save') && !$this->_isAdmin()) {
+            return; # if event was not triggered by admin, stop here
+        }
+
+        $attribute = $observer->getEvent()->getAttribute();
+
+        if ($attribute->getAttributeCode() === NULL) {
             return NULL;
         }
 
-        if ($model->isScopeGlobal()) {
-            $scope = 'global';
-        } elseif ($model->isScopeWebsite()) {
-            $scope = 'website';
-        } else {
-            $scope = 'store';
-        }
-
-        $frontendLabels = array();
-        $options = array();
-
-        foreach ($model->getStoreLabels() as $store_id => $label) {
-            $frontendLabels[] = array(
-                'store_id' => $store_id,
-                'label' => $label
-            );
-
-            $store_options = $model->setStoreId($store_id)->getSource()->getAllOptions();
-
-            if (sizeof($store_options) == 1 && $store_options[0]['label'] === '') {
-                $store_options = array();
-            }
-
-            $options[] = array(
-                'store_id' => $store_id,
-                'options' => $store_options
-            );
-        }
-
-        $data = array(
-            'attribute_id' => $model->getId(),
-            'attribute_code' => $model->getAttributeCode(),
-            'frontend_input' => $model->getFrontendInput(),
-            'default_value' => $model->getDefaultValue(),
-            'is_unique' => $model->getIsUnique(),
-            'is_required' => $model->getIsRequired(),
-            'apply_to' => $model->getApplyTo(),
-            'is_configurable' => $model->getIsConfigurable(),
-            'is_searchable' => $model->getIsSearchable(),
-            'is_visible_in_advanced_search' => $model->getIsVisibleInAdvancedSearch(),
-            'is_comparable' => $model->getIsComparable(),
-            'is_used_for_promo_rules' => $model->getIsUsedForPromoRules(),
-            'is_visible_on_front' => $model->getIsVisibleOnFront(),
-            'used_in_product_listing' => $model->getUsedInProductListing(),
-            'frontend_label' => $frontendLabels,
-            'options' => $options
-        );
-
-        if ($model->getFrontendInput() != 'price') {
-            $data['scope'] = $scope;
-        }
-
-        // set additional fields to different types
-        switch ($model->getFrontendInput()) {
-            case 'text':
-                $data['additional_fields'] = array(
-                    'frontend_class' => $model->getFrontendClass(),
-                    'is_html_allowed_on_front' => $model->getIsHtmlAllowedOnFront(),
-                    'used_for_sort_by' => $model->getUsedForSortBy()
-                );
-                break;
-            case 'textarea':
-                $data['additional_fields'] = array(
-                    'is_wysiwyg_enabled' => $model->getIsWysiwygEnabled(),
-                    'is_html_allowed_on_front' => $model->getIsHtmlAllowedOnFront(),
-                );
-                break;
-            case 'date':
-            case 'boolean':
-                $data['additional_fields'] = array(
-                    'used_for_sort_by' => $model->getUsedForSortBy()
-                );
-                break;
-            case 'multiselect':
-                $data['additional_fields'] = array(
-                    'is_filterable' => $model->getIsFilterable(),
-                    'is_filterable_in_search' => $model->getIsFilterableInSearch(),
-                    'position' => $model->getPosition()
-                );
-                break;
-            case 'select':
-            case 'price':
-                $data['additional_fields'] = array(
-                    'is_filterable' => $model->getIsFilterable(),
-                    'is_filterable_in_search' => $model->getIsFilterableInSearch(),
-                    'position' => $model->getPosition(),
-                    'used_for_sort_by' => $model->getUsedForSortBy()
-                );
-                break;
-            default:
-                $data['additional_fields'] = array();
-                break;
-        }
+        $data = Mage::helper('gemgento_push/catalog_attribute')->export($attribute);
 
         self::push('PUT', 'product_attributes', $data['attribute_id'], $data);
     }
@@ -371,7 +244,7 @@ class Gemgento_Push_Model_Observer {
      */
     public function customer_save($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('customer_save') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
@@ -428,34 +301,16 @@ class Gemgento_Push_Model_Observer {
      */
     public function order_save($observer) {
 
-        if (!$this->_isAdmin()) {
+        if ($this->_isRestricted('order_save') && !$this->_isAdmin()) {
             return; # if event was not triggered by admin, stop here
         }
 
         $order = $observer->getEvent()->getOrder();
+        $data =  Mage::helper('gemgento_push/sales_order')->export($order);
+        $id = $data['gemgento_id'];
 
-        $data = $this->_getAttributes($order, 'order');
-        $data['order_id'] = $order->getId();
-        $data['gemgento_id'] = $order->getGemgentoId();
-        $data['store_id'] = $order->getStoreId();
-        $data['shipping_address'] = $this->_getAttributes($order->getShippingAddress(), 'order_address');
-        $data['billing_address'] = $this->_getAttributes($order->getBillingAddress(), 'order_address');
-        $data['items'] = array();
-
-        foreach ($order->getAllItems() as $item) {
-            if ($item->getGiftMessageId() > 0) {
-                $item->setGiftMessage(
-                    Mage::getSingleton('giftmessage/message')->load($item->getGiftMessageId())->getMessage()
-                );
-            }
-
-            $data['items'][] = $this->_getAttributes($item, 'order_item');
-        }
-
-        $data['status_history'] = array();
-
-        foreach ($order->getAllStatusHistory() as $history) {
-            $data['status_history'][] = $this->_getAttributes($history, 'order_status_history');
+        if ($id == NULL || $id == '') {
+            $id = 0;
         }
 
         $id = $data['gemgento_id'];
@@ -465,6 +320,7 @@ class Gemgento_Push_Model_Observer {
         }
 
         self::push('PUT', 'orders', $id, $data);
+
     }
 
     /**
@@ -641,7 +497,7 @@ class Gemgento_Push_Model_Observer {
      * @param array $attributes
      * @return Mage_Sales_Model_Api_Resource
      */
-    protected function _getAttributes($object, $type, array $attributes = null) {
+    public function _getAttributes($object, $type, array $attributes = null) {
         $result = array();
 
         if (!is_object($object)) {
@@ -672,8 +528,8 @@ class Gemgento_Push_Model_Observer {
     /**
      * Check is attribute allowed to usage
      *
-     * @param Mage_Eav_Model_Entity_Attribute_Abstract $attribute
-     * @param string $entityType
+     * @param Mage_Eav_Model_Entity_Attribute_Abstract $attributeCode
+     * @param string $type
      * @param array $attributes
      * @return boolean
      */
@@ -700,6 +556,17 @@ class Gemgento_Push_Model_Observer {
      */
     protected function _isAdmin() {
         return is_object(Mage::getSingleton('admin/session')->getUser());
+    }
+
+    /**
+     * Determine if an events observer is restricted to the admin session.
+     *
+     * @param string $event
+     * @return bool
+     */
+    protected function _isRestricted($event)
+    {
+        return (bool) Mage::getStoreConfig("gemgento_push/admin_session_restricted_events/$event");
     }
 
 }

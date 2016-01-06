@@ -67,14 +67,13 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
                 $this->getResponse()->setRedirect($url);
                 return;
             }
-        } catch (Mage_Core_Exception $e) {
-            $this->_getCheckoutSession()->addError($e->getMessage());
         } catch (Exception $e) {
-            $this->_getCheckoutSession()->addError($this->__('Unable to start Express Checkout.'));
             Mage::logException($e);
+            $this->_redirectToCartWithAlert($e->getMessage());
         }
 
-        header("Location: {$this->_callbackUrl()}checkout/address?alert=" . urlencode('There was a problem processing the PayPal payment'));
+        $message = 'There was a problem processing the PayPal payment';
+        $this->_redirectToCartWithAlert($message);
         exit;
     }
 
@@ -104,11 +103,9 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
             } else {
                 $this->_getCheckoutSession()->addSuccess($this->__('Express Checkout has been canceled.'));
             }
-        } catch (Mage_Core_Exception $e) {
-            $this->_getCheckoutSession()->addError($e->getMessage());
         } catch (Exception $e) {
-            $this->_getCheckoutSession()->addError($this->__('Unable to cancel Express Checkout.'));
             Mage::logException($e);
+            $this->_redirectToCartWithAlert($e->getMessage());
         }
 
         header("Location: {$this->_callbackUrl()}cart");
@@ -129,16 +126,13 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
             $this->_checkout->returnFromPaypal($this->_initToken());
             header("Location: {$this->_callbackUrl()}checkout/confirm");
             exit;
-        }
-        catch (Mage_Core_Exception $e) {
-            Mage::getSingleton('checkout/session')->addError($e->getMessage());
-        }
-        catch (Exception $e) {
-            Mage::getSingleton('checkout/session')->addError($this->__('Unable to process Express Checkout approval.'));
+        } catch (Exception $e) {
             Mage::logException($e);
+            $this->_redirectToCartWithAlert($e->getMessage());
         }
 
-        header("Location: {$this->_callbackUrl()}cart?alert=" . urlencode('There was a problem processing the PayPal payment.  Your order has been canceled.'));
+        $message = 'There was a problem processing the PayPal payment.  Your order has been canceled.';
+        $this->_redirectToCartWithAlert($message);
         exit;
     }
 
@@ -208,12 +202,9 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
             header("Location: {$this->_callbackUrl()}checkout/paypal/{$order->getIncrementId()}");
             exit;
         }
-        catch (Mage_Core_Exception $e) {
-            $this->_getSession()->addError($e->getMessage());
-        }
         catch (Exception $e) {
-            $this->_getSession()->addError($this->__('Unable to place the order.'));
             Mage::logException($e);
+            $this->_redirectToCartWithAlert($e->getMessage());
         }
 
         header("Location: {$this->_callbackUrl()}checkout/confirm?alert=" . urlencode('There was a problem processing the PayPal payment'));
@@ -224,12 +215,11 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
      * Instantiate quote and checkout
      * @throws Mage_Core_Exception
      */
-    private function _initCheckout()
+    protected function _initCheckout()
     {
         $quote = $this->_getQuote();
         if (!$quote->hasItems() || $quote->getHasError()) {
-            $this->getResponse()->setHeader('HTTP/1.1','403 Forbidden');
-            Mage::throwException(Mage::helper('paypal')->__('Unable to initialize Express Checkout.'));
+            $this->_redirectToCartWithAlert('Unable to initialize Express Checkout.');
         }
         $this->_checkout = Mage::getSingleton($this->_checkoutType, array(
             'config' => $this->_config,
@@ -252,9 +242,14 @@ class Gemgento_Paypal_ExpressController extends Mage_Paypal_ExpressController
      *
      * @return Mage_Checkout_Model_Session
      */
-    private function _getCheckoutSession()
+    protected function _getCheckoutSession()
     {
         return Mage::getSingleton('checkout/session');
+    }
+
+    private function _redirectToCartWithAlert($message)
+    {
+        header("Location: {$this->_callbackUrl()}cart?alert=" . urlencode($message));
     }
 
     /**

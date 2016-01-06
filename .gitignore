@@ -7,7 +7,7 @@
 /oublic/media/giftvoucher/template/barcode/*
 /public/errors/local.xml
 /public/app/etc/local.xml
-/public/var/*
+/public/var/
 
-# Ignore PhpStorm
 .idea/
+.vagrant/

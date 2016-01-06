@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Gemgento_Push>
-            <version>0.0.3</version>
+            <version>3.0.0</version>
         </Gemgento_Push>
     </modules>
     <global>
@@ -10,12 +10,6 @@
             <gemgento_push>
                 <class>Gemgento_Push_Model</class>
             </gemgento_push>
-
-            <core>
-                <rewrite>
-                    <email_template>Gemgento_Push_Model_Email_Template</email_template>
-                </rewrite>
-            </core>
         </models>
         <helpers>
             <gemgento_push>
@@ -23,30 +17,30 @@
             </gemgento_push>
         </helpers>
         <events>
-            
+
             <!-- ADDRESSES -->
-            <customer_address_save_after>
-               <observers>
+            <customer_address_save_commit_after>
+                <observers>
                     <push>
                         <type>singleton</type>
                         <class>Gemgento_Push_Model_Observer</class>
                         <method>address_save</method>
                     </push>
-                </observers> 
-            </customer_address_save_after>
-            
+                </observers>
+            </customer_address_save_commit_after>
+
             <customer_address_delete_before>
-               <observers>
+                <observers>
                     <push>
                         <type>singleton</type>
                         <class>Gemgento_Push_Model_Observer</class>
                         <method>address_delete</method>
                     </push>
-                </observers> 
+                </observers>
             </customer_address_delete_before>
-            
+
             <!-- PRODUCTS -->
-            <catalog_product_save_after>
+            <catalog_product_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -54,8 +48,8 @@
                         <method>product_save</method>
                     </push>
                 </observers>
-            </catalog_product_save_after>
-            
+            </catalog_product_save_commit_after>
+
             <catalog_product_delete_before>
                 <observers>
                     <push>
@@ -65,9 +59,9 @@
                     </push>
                 </observers>
             </catalog_product_delete_before>
-            
+
             <!-- STOCK -->
-            <cataloginventory_stock_item_save_after>
+            <cataloginventory_stock_item_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -75,10 +69,10 @@
                         <method>stock_save</method>
                     </push>
                 </observers>
-            </cataloginventory_stock_item_save_after>
-            
+            </cataloginventory_stock_item_save_commit_after>
+
             <!-- CATEGORY -->
-            <catalog_category_save_after>
+            <catalog_category_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -86,8 +80,8 @@
                         <method>category_save</method>
                     </push>
                 </observers>
-            </catalog_category_save_after>
-            
+            </catalog_category_save_commit_after>
+
             <catalog_category_delete_before>
                 <observers>
                     <push>
@@ -97,7 +91,7 @@
                     </push>
                 </observers>
             </catalog_category_delete_before>
-            
+
             <catalog_category_tree_move_after>
                 <observers>
                     <push>
@@ -107,9 +101,9 @@
                     </push>
                 </observers>
             </catalog_category_tree_move_after>
-            
+
             <!-- PRICE RULES -->
-            <catalogrule_rule_save_after>
+            <catalogrule_rule_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -117,8 +111,8 @@
                         <method>rule_save</method>
                     </push>
                 </observers>
-            </catalogrule_rule_save_after>
-            
+            </catalogrule_rule_save_commit_after>
+
             <catalogrule_rule_delete_before>
                 <observers>
                     <push>
@@ -128,9 +122,9 @@
                     </push>
                 </observers>
             </catalogrule_rule_delete_before>
-            
+
             <!-- ATTRIBUTE SET -->
-            <eav_entity_attribute_set_save_after>
+            <eav_entity_attribute_set_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -138,8 +132,8 @@
                         <method>attribute_set_save</method>
                     </push>
                 </observers>
-            </eav_entity_attribute_set_save_after>
-            
+            </eav_entity_attribute_set_save_commit_after>
+
             <eav_entity_attribute_set_delete_before>
                 <observers>
                     <push>
@@ -149,9 +143,9 @@
                     </push>
                 </observers>
             </eav_entity_attribute_set_delete_before>
-            
+
             <!-- ATTRIBUTE -->
-            <catalog_entity_attribute_save_after>
+            <catalog_entity_attribute_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -159,9 +153,9 @@
                         <method>attribute_save</method>
                     </push>
                 </observers>
-            </catalog_entity_attribute_save_after>
-            
-            <eav_entity_attribute_save_after>
+            </catalog_entity_attribute_save_commit_after>
+
+            <eav_entity_attribute_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -169,8 +163,8 @@
                         <method>attribute_save</method>
                     </push>
                 </observers>
-            </eav_entity_attribute_save_after>
-            
+            </eav_entity_attribute_save_commit_after>
+
             <catalog_entity_attribute_delete_before>
                 <observers>
                     <push>
@@ -180,7 +174,7 @@
                     </push>
                 </observers>
             </catalog_entity_attribute_delete_before>
-            
+
             <eav_entity_attribute_delete_before>
                 <observers>
                     <push>
@@ -190,9 +184,9 @@
                     </push>
                 </observers>
             </eav_entity_attribute_delete_before>
-            
+
             <!-- CUSTOMER -->
-            <customer_save_after>
+            <customer_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -200,8 +194,8 @@
                         <method>customer_save</method>
                     </push>
                 </observers>
-            </customer_save_after>
-            
+            </customer_save_commit_after>
+
             <customer_delete_before>
                 <observers>
                     <push>
@@ -212,7 +206,7 @@
                 </observers>
             </customer_delete_before>
 
-            <customer_group_save_after>
+            <customer_group_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -220,7 +214,7 @@
                         <method>customer_group_save</method>
                     </push>
                 </observers>
-            </customer_group_save_after>
+            </customer_group_save_commit_after>
 
             <customer_group_delete_before>
                 <observers>
@@ -231,9 +225,9 @@
                     </push>
                 </observers>
             </customer_group_delete_before>
-            
+
             <!-- ORDER -->
-            <sales_order_save_after>
+            <sales_order_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -241,10 +235,10 @@
                         <method>order_save</method>
                     </push>
                 </observers>
-            </sales_order_save_after>
-            
+            </sales_order_save_commit_after>
+
             <!-- STORE -->
-            <store_save_after>
+            <store_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -252,10 +246,10 @@
                         <method>store_save</method>
                     </push>
                 </observers>
-            </store_save_after>
+            </store_save_commit_after>
 
             <!-- RECURRING PROFILE -->
-            <sales_recurring_profile_save_after>
+            <sales_recurring_profile_save_commit_after>
                 <observers>
                     <push>
                         <type>singleton</type>
@@ -263,20 +257,30 @@
                         <method>recurring_profile_save</method>
                     </push>
                 </observers>
-            </sales_recurring_profile_save_after>
+            </sales_recurring_profile_save_commit_after>
         </events>
     </global>
-    
+
     <default>
         <gemgento_push>
             <config>
                 <gemgento_url>http://localhost:3000/</gemgento_url>
                 <gemgento_user></gemgento_user>
                 <gemgento_password></gemgento_password>
+
             </config>
+            <admin_session_restricted_events>
+                <address_save>1</address_save>
+                <attribute_save>1</attribute_save>
+                <category_move>1</category_move>
+                <category_save>1</category_save>
+                <customer_save>1</customer_save>
+                <order_save>1</order_save>
+                <product_save>1</product_save>
+            </admin_session_restricted_events>
         </gemgento_push>
     </default>
-    
+
 </config>
 
 
